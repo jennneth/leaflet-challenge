@@ -1,6 +1,7 @@
 //everything is copied from a class example and needs to be updated
 // Store our API endpoint inside queryUrl
-var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_day.geojson";
+//var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_day.geojson";
+var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
 // Perform a GET request to the query URL
 d3.json(queryUrl, function(data) {
   // Once we get a response, send the data.features object to the createFeatures function
@@ -8,70 +9,74 @@ d3.json(queryUrl, function(data) {
   createFeatures(data.features);
 });
 
-function createFeatures(earthquakeData) {
-
-  // Define a function we want to run once for each feature in the features array
-  // Give each feature a popup describing the place and time of the earthquake
-  for (var i=0; i < earthquakeData.length; i++) {
-
-    function colorSel(depth){
-        var color = "";
-        if (depth <10) {
-        color = "#ccff66";
+function createFeatures(eqData){
+    // Define a function we want to run once for each feature in the features array
+    // Give each feature a popup describing the place and time of the earthquake
+    function chooseColor(depth){
+        if (depth < 10) {
+            color = "#80ff00";  //green
         }
-        else if (depth<30) {
-        color = "#ffff66";
+        else if(depth < 30) {
+            color = "#bfff00";  //yellow-green
         }
-        else if (depth < 50) {
-        color = "ffcc66";
+        else if(depth < 50) {
+            color = "#ffff00";  //gold-yellow
         }
-        else if (depth < 70) {
-        color = "#ffa64d";
+        else if(depth < 70) {
+            color = "#ffbf00";  //peach
         }
-        else if (depth < 90) {
-        color = "#e67300";
+        else if(depth < 90) {
+            color = "#ff8000";  //orange
         }
         else {
-        color = "#ff4d4d";
+            color = "#ff0000";  //red
         }
         return color
-      };
-     console.log(earthquakeData[i].geometry.coordinates[2]);
-    color = colorSel(earthquakeData[i].geometry.coordinates[2]);
-  }
-  
-  
-  
+    };
 
-  var quakeMarker = {
-    stroke: false,
-    fillOpacity: 0.75,
-    color: "white",
-    fillColor: color,
-    radius: 38
-    // radius: markerSize(locations[i].city.population)
-  };
+    function styleInfo(feature) {
+        return {
+            fillOpacity: 0.5,
+            color: chooseColor(feature.geometry.coordinates[2]),
+            fillColor: chooseColor(feature.geometry.coordinates[2]),
+            // Adjust radius
+            radius: feature.properties.mag * 3
+        }                    
+        };
 
-  function onEachFeature(feature, layer) {
-    layer.bindPopup("<h3>" + feature.properties.place +
-      "</h3><hr><p>" + new Date(feature.properties.time) + "</p>");
-  };
+    var earthquakes = L.geoJson(eqData, {
+        // We turn each feature into a circleMarker on the map.
+        pointToLayer: function(feature, latlng) {
+            return L.circleMarker(latlng);
+        },
+        // We set the style for each circleMarker using our styleInfo function.
+        style: styleInfo,
+        // We create a popup for each marker to display the magnitude and location of the earthquake after the marker has been created and styled
+        onEachFeature: function(feature, layer) {
+            layer.bindPopup(
+            "Magnitude: "
+                + feature.properties.mag
+                + "<br>Depth: "
+                + feature.geometry.coordinates[2]
+                + "<br>Location: "
+                + feature.properties.place
+            );
+        }
+        }); //.addTo(map);
+    createMap(earthquakes);
+};
+            
+            // var earthquakes = L.geoJSON(eqData, {
+            //     pointToLayer: function (feature, latlng) {
+            //         return L.circle(latlng, eqMarker).bindPopup("<h3>" + eqData[i].properties.place +
+            //         "</h3><hr><p>" + new Date(eqData[i].properties.time) + "</p>");
+            //     }
+            // });
+            
+    
+     // Sending our earthquakes layer to the createMap function
 
-  function pointToLayer(earthquakeData, latlng){
-        console.log(color)
-      return L.circleMarker(latlng, quakeMarker);
-  };
 
-  // Create a GeoJSON layer containing the features array on the earthquakeData object
-  // Run the onEachFeature function once for each piece of data in the array
-  var earthquakes = L.geoJSON(earthquakeData, {
-    pointToLayer: pointToLayer,
-    onEachFeature: onEachFeature
-  });
-
-  // Sending our earthquakes layer to the createMap function
-  createMap(earthquakes);
-}
 
 function createMap(earthquakes) {
 
