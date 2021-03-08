@@ -1,8 +1,7 @@
+//everything is copied from a class example and needs to be updated
 // Store our API endpoint inside queryUrl
 //var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_day.geojson";
 var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
-var tectonicPlatesURL = "https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json"
-
 // Perform a GET request to the query URL
 d3.json(queryUrl, function(data) {
   // Once we get a response, send the data.features object to the createFeatures function
@@ -33,8 +32,30 @@ function chooseColor(depth){
 };
 
 function createFeatures(eqData){
-    
-    //enable custom style for each point/earthquake
+    // Define a function we want to run once for each feature in the features array
+    // Give each feature a popup describing the place and time of the earthquake
+    // function chooseColor(depth){
+    //     if (depth < 10) {
+    //         color = "#80ff00";  //green
+    //     }
+    //     else if(depth < 30) {
+    //         color = "#bfff00";  //yellow-green
+    //     }
+    //     else if(depth < 50) {
+    //         color = "#ffff00";  //gold-yellow
+    //     }
+    //     else if(depth < 70) {
+    //         color = "#ffbf00";  //peach
+    //     }
+    //     else if(depth < 90) {
+    //         color = "#ff8000";  //orange
+    //     }
+    //     else {
+    //         color = "#ff0000";  //red
+    //     }
+    //     return color
+    // };
+
     function styleInfo(feature) {
         return {
             fillOpacity: 0.5,
@@ -63,11 +84,22 @@ function createFeatures(eqData){
                 + feature.properties.place
             );
         }
-        }); 
-   // Sending our earthquakes layer to the createMap function
+        }); //.addTo(map);
     createMap(earthquakes);
 };
-  
+            
+            // var earthquakes = L.geoJSON(eqData, {
+            //     pointToLayer: function (feature, latlng) {
+            //         return L.circle(latlng, eqMarker).bindPopup("<h3>" + eqData[i].properties.place +
+            //         "</h3><hr><p>" + new Date(eqData[i].properties.time) + "</p>");
+            //     }
+            // });
+            
+    
+     // Sending our earthquakes layer to the createMap function
+
+
+
 function createMap(earthquakes) {
 
   // Define streetmap and darkmap layers
@@ -93,22 +125,10 @@ function createMap(earthquakes) {
     "Dark Map": darkmap
   };
 
-  //create tectonic layer
-  var tectonicPlates = new L.LayerGroup();
-
   // Create overlay object to hold our overlay layer
   var overlayMaps = {
-    "Earthquakes" : earthquakes,
-    "Tectonic Plates" : tectonicPlates
+    Earthquakes: earthquakes
   };
-
-  d3.json(tectonicPlatesURL, function(tectonicData){
-      L.geoJson(tectonicData, {
-          color: "purple",
-          weight: 2
-      })
-      .addTo(tectonicPlates);
-  });
 
   // Create our map, giving it the streetmap and earthquakes layers to display on load
   var myMap = L.map("map", {
