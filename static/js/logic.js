@@ -9,30 +9,52 @@ d3.json(queryUrl, function(data) {
   createFeatures(data.features);
 });
 
+function chooseColor(depth){
+    if (depth < 10) {
+        color = "#80ff00";  //green
+    }
+    else if(depth < 30) {
+        color = "#bfff00";  //yellow-green
+    }
+    else if(depth < 50) {
+        color = "#ffff00";  //gold-yellow
+    }
+    else if(depth < 70) {
+        color = "#ffbf00";  //peach
+    }
+    else if(depth < 90) {
+        color = "#ff8000";  //orange
+    }
+    else {
+        color = "#ff0000";  //red
+    }
+    return color
+};
+
 function createFeatures(eqData){
     // Define a function we want to run once for each feature in the features array
     // Give each feature a popup describing the place and time of the earthquake
-    function chooseColor(depth){
-        if (depth < 10) {
-            color = "#80ff00";  //green
-        }
-        else if(depth < 30) {
-            color = "#bfff00";  //yellow-green
-        }
-        else if(depth < 50) {
-            color = "#ffff00";  //gold-yellow
-        }
-        else if(depth < 70) {
-            color = "#ffbf00";  //peach
-        }
-        else if(depth < 90) {
-            color = "#ff8000";  //orange
-        }
-        else {
-            color = "#ff0000";  //red
-        }
-        return color
-    };
+    // function chooseColor(depth){
+    //     if (depth < 10) {
+    //         color = "#80ff00";  //green
+    //     }
+    //     else if(depth < 30) {
+    //         color = "#bfff00";  //yellow-green
+    //     }
+    //     else if(depth < 50) {
+    //         color = "#ffff00";  //gold-yellow
+    //     }
+    //     else if(depth < 70) {
+    //         color = "#ffbf00";  //peach
+    //     }
+    //     else if(depth < 90) {
+    //         color = "#ff8000";  //orange
+    //     }
+    //     else {
+    //         color = "#ff0000";  //red
+    //     }
+    //     return color
+    // };
 
     function styleInfo(feature) {
         return {
@@ -123,4 +145,36 @@ function createMap(earthquakes) {
   L.control.layers(baseMaps, overlayMaps, {
     collapsed: false
   }).addTo(myMap);
+
+    // Create a legend to display information about our map
+    var legend = L.control({
+        position: "bottomright"
+    });
+    // When the layer control is added, insert a div with the class of "legend"
+    legend.onAdd = function(myMap) {
+        var div = L.DomUtil.create("div", "info legend"),
+        //grades = ['-10-10', '10-30', '30-50', '50-70', '70-90', '90+'];
+        grades = [-10,10,30,50,70,90],
+        labels = ['<strong><h3>Earthquake Depth</h3></strong><hr>'];    
+        var legend_colors = [
+            "#80ff00",  //green
+            "#bfff00",  //yellow-green
+            "#ffff00",  //gold-yellow
+            "#ffbf00",  //peach
+            "#ff8000",  //orange
+            "#ff0000"  //red
+        ];
+        div.innerHTML = labels;
+        for (var i=0; i<grades.length; i++) {
+            div.innerHTML +=
+            "<br><i style = 'background: " + legend_colors[i] + "'></i> "
+                + grades[i] + (grades[i+1] ? "&ndash;" + grades[i+1]+"<br>" : "+")
+            ;
+        }
+        
+        return div;
+    };
+    // Add the info legend to the map
+    legend.addTo(myMap);
+  
 };
