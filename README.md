@@ -1,6 +1,6 @@
 # Mapping Earthquake Data Using Leaflet
 
-In this exercise, geoJSON data is read in from the United States Geological Survey (USGS) and plotted on a map of the world.
+In this exercise, geoJSON data is read in from the United States Geological Survey (USGS) and plotted on a map of the world.  Data on tectonic plates is pulled from <https://github.com/fraxen/tectonicplates>.
 
 The data displayed shows all of the earthquakes, worldwide, that occurred in the past day.  The data feed is refreshed every minute, so the data is up-to-date with every map refresh.
 
